@@ -15,18 +15,12 @@ public class ParkingLotController {
 
     private ParkingLotService service;
 
-    /// Initialization / Resetting Service Endpoints
+    /// Initialization / Resetting Service Endpoint
 
     @PostMapping("/init")
     public String init(@RequestParam int totalSlots) {
         this.service = new ParkingLotService(totalSlots);
         return "Parking lot initialized with " + totalSlots + " slots";
-    }
-
-    @PostMapping("/reset")
-    public String reset(@RequestParam int totalSlots) {
-        this.service = new ParkingLotService(totalSlots);
-        return "Parking lot reset with " + totalSlots + " slots";
     }
 
     /// Vehicle Endpoints

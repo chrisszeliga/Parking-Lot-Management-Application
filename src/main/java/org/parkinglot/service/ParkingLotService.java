@@ -97,6 +97,4 @@ public class ParkingLotService {
 
         return true;
     }
-
-    // Maybe implement some kind of search later?
 }

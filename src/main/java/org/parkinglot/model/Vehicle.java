@@ -1,8 +1,8 @@
 package org.parkinglot.model;
 
 public class Vehicle {
-    private final String licensePlate;
-    private final VehicleSize size;
+    private String licensePlate;
+    private VehicleSize size;
 
     public Vehicle(String licensePlate, VehicleSize size) {
         this.licensePlate = licensePlate;
@@ -13,7 +13,15 @@ public class Vehicle {
         return licensePlate;
     }
 
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+
     public VehicleSize getSize() {
         return size;
+    }
+
+    public void setSize(VehicleSize size) {
+        this.size = size;
     }
 }

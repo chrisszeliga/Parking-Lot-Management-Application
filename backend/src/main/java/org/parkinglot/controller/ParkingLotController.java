@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/parking")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ParkingLotController {
 
     private ParkingLotService service;

@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: Consolas, "Courier New", monospace;
   background-color: #ffffff;
-  color: #111;
+  color: #333;
 }
 
 .container {
@@ -89,7 +89,7 @@ select {
 input:focus,
 select:focus {
   outline: none;
-  border-color: #000;
+  border-color: #333;
 }
 
 button {

@@ -56,7 +56,6 @@ http://localhost:8080/parking
 Method | Endpoint | Description
 ------ | -------- | -----------
 POST | /init?totalSlots=N | Initialize parking lot
-POST | /reset?totalSlots=N | Reset parking lot
 POST | /entry | Park a vehicle
 POST | /exit?licensePlate=ABC-123 | Remove a vehicle
 GET | /status | View parking status

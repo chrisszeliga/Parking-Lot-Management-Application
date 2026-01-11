@@ -7,20 +7,24 @@ import org.parkinglot.model.Vehicle;
 import java.util.*;
 
 public class ParkingLotService {
-    private List<Slot> slots = new ArrayList<>();
+    private final List<Slot> slots = new ArrayList<>();
     // Vehicle license plate -> slot id vehicle is in
-    private Map<String, Integer> vehicles = new HashMap<>();
+    private final Map<String, Integer> vehicles = new HashMap<>();
 
     // Ratios for distributing parking slots
     private static final double SMALL_RATIO = 0.25;
     private static final double LARGE_RATIO = 0.55;
     private static final double OVERSIZE_RATIO = 0.20;
 
+    private final int smallSlots;
+    private int largeSlots;
+    private final int oversizedSlots;
+
 
     public ParkingLotService(int totalSlots) {
-        int smallSlots = (int) Math.floor(totalSlots * SMALL_RATIO);
-        int largeSlots = (int) Math.floor(totalSlots * LARGE_RATIO);
-        int oversizedSlots = (int) Math.floor(totalSlots * OVERSIZE_RATIO);
+        smallSlots = (int) Math.floor(totalSlots * SMALL_RATIO);
+        largeSlots = (int) Math.floor(totalSlots * LARGE_RATIO);
+        oversizedSlots = (int) Math.floor(totalSlots * OVERSIZE_RATIO);
 
         // Add remainder to large slots
         int remainder = totalSlots - (smallSlots + largeSlots + oversizedSlots);
@@ -35,6 +39,31 @@ public class ParkingLotService {
 
         for (int i = 0; i < oversizedSlots; i++)
             slots.add(new Slot(slotId++, SlotSize.OVERSIZE));
+    }
+
+
+    public List<Slot> getSlots() {
+        return slots;
+    }
+
+
+    public int getSmallSlots() {
+        return smallSlots;
+    }
+
+
+    public int getLargeSlots() {
+        return largeSlots;
+    }
+
+
+    public int getOversizedSlots() {
+        return oversizedSlots;
+    }
+
+
+    public Map<String, Integer> getVehicles() {
+        return vehicles;
     }
 
 
@@ -58,24 +87,15 @@ public class ParkingLotService {
 
     public boolean vehicleExit(String licensePlate) {
         // Check if vehicle exists, with attempted removal
-        if (vehicles.remove(licensePlate) == null)
+        if (!vehicles.containsKey(licensePlate))
             return false;
 
         // license plate -> slot id -> slot object
         Slot slot = slots.get(vehicles.get(licensePlate));
+        vehicles.remove(licensePlate);
         slot.setVehicle(null);
 
         return true;
-    }
-
-
-    public List<Slot> getSlots() {
-        return slots;
-    }
-
-
-    public Map<String, Integer> getVehicles() {
-        return vehicles;
     }
 
     // Maybe implement some kind of search later?

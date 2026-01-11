@@ -1,49 +1,6 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
-
-// function App() {
-//   const [count, setCount] = useState(0)
-
-  
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-
-// export default App
-
-
 import { useEffect, useState } from "react";
-import {
-  initParking,
-  parkVehicle,
-  exitVehicle,
-  getStatus,
-} from "./api/parkingApi";
+import {initParking, parkVehicle, exitVehicle, getStatus} from "./api/parkingApi";
+import "./App.css";
 
 function App() {
   const [totalSlots, setTotalSlots] = useState("");
@@ -52,34 +9,77 @@ function App() {
   const [exitPlate, setExitPlate] = useState("");
   const [slots, setSlots] = useState([]);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("info");
 
   async function refreshStatus() {
-    const data = await getStatus();
-    setSlots(data);
+    try {
+      const data = await getStatus();
+      setSlots(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function showMessage(msg, type = "info") {
+    setMessage(msg);
+    setMessageType(type);
   }
 
   async function handleInit() {
-    const msg = await initParking(Number(totalSlots));
-    setMessage(msg);
-    setTotalSlots("");
-    refreshStatus();
+    if (!totalSlots || totalSlots < 1) {
+      showMessage("Please enter a valid number of slots", "error");
+      return;
+    }
+    try {
+      const msg = await initParking(Number(totalSlots));
+      showMessage(msg, "success");
+      setTotalSlots("");
+      refreshStatus();
+    } catch (err) {
+      showMessage("Failed to initialize parking lot", "error");
+      console.error(err);
+    }
   }
 
   async function handlePark() {
-    const result = await parkVehicle({
-      licensePlate,
-      size: vehicleSize,
-    });
-    setMessage(JSON.stringify(result));
-    setLicensePlate("");
-    refreshStatus();
+    if (!licensePlate.trim()) {
+      showMessage("Please enter a license plate", "error");
+      return;
+    }
+    try {
+      const result = await parkVehicle({
+        licensePlate,
+        size: vehicleSize,
+      });
+      showMessage(
+        result.message || "Vehicle parked",
+        result.success ? "success" : "error"
+      );
+      setLicensePlate("");
+      refreshStatus();
+    } catch (err) {
+      showMessage("Failed to park vehicle", "error");
+      console.error(err);
+    }
   }
 
   async function handleExit() {
-    const result = await exitVehicle(exitPlate);
-    setMessage(JSON.stringify(result));
-    setExitPlate("");
-    refreshStatus();
+    if (!exitPlate.trim()) {
+      showMessage("Please enter a license plate", "error");
+      return;
+    }
+    try {
+      const result = await exitVehicle(exitPlate);
+      showMessage(
+        result.message || "Vehicle exited",
+        result.success ? "success" : "error"
+      );
+      setExitPlate("");
+      refreshStatus();
+    } catch (err) {
+      showMessage("Failed to exit vehicle", "error");
+      console.error(err);
+    }
   }
 
   useEffect(() => {
@@ -87,97 +87,128 @@ function App() {
   }, []);
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "1000px", margin: "0 auto" }}>
-      <h1>Parking Lot Management App 🚗</h1>
+    <div className="container">
+      <header>
+        <h1>Parking Lot Management Application</h1>
 
-      {/* INIT */}
-      <section>
-        <h2>Initialize / Reset Parking Lot</h2>
-        <input
-          type="number"
-          placeholder="Total slots"
-          value={totalSlots}
-          onChange={(e) => setTotalSlots(e.target.value)}
-        />
-        <button onClick={handleInit}>Init</button>
-      </section>
+        <div className="ascii-box">
+{`
+╔════════════════════════════════╗
+║            ENTRANCE            ║
+╚════════════════════════════════╝
 
+┏━━━━━┓  ┏━━━━━┓  ┏━━━━━┓  ┏━━━━━┓
+┃ [1] ┃  ┃ [2] ┃  ┃ [3] ┃  ┃ [4] ┃
+┃ --- ┃  ┃ --- ┃  ┃ --- ┃  ┃ --- ┃
+┗━━━━━┛  ┗━━━━━┛  ┗━━━━━┛  ┗━━━━━┛
+    
+┏━━━━━┓  ┏━━━━━┓  ┏━━━━━┓  ┏━━━━━┓
+┃ [5] ┃  ┃ [6] ┃  ┃ [7] ┃  ┃ [8] ┃
+┃ --- ┃  ┃ --- ┃  ┃ --- ┃  ┃ --- ┃
+┗━━━━━┛  ┗━━━━━┛  ┗━━━━━┛  ┗━━━━━┛
+
+╔════════════════════════════════╗
+║             EXIT →             ║
+╚════════════════════════════════╝
+`}
+        </div>
+      </header>
+      
       <hr />
+
+      {/* INITIALIZE */}
+      <section className="panel">
+        <h2>Initialize Parking Lot</h2>
+        <div className="control-group">
+          <label>Total Slots</label>
+          <input
+            type="number"
+            value={totalSlots}
+            onChange={(e) => setTotalSlots(e.target.value)}
+          />
+          <button onClick={handleInit}>Initialize</button>
+        </div>
+      </section>
 
       {/* PARK */}
-      <section>
+      <section className="panel">
         <h2>Park Vehicle</h2>
-        <input
-          placeholder="License Plate"
-          value={licensePlate}
-          onChange={(e) => setLicensePlate(e.target.value)}
-        />
+        <div className="control-group">
+          <label>License Plate</label>
+          <input
+            value={licensePlate}
+            onChange={(e) => setLicensePlate(e.target.value)}
+          />
 
-        <select
-          value={vehicleSize}
-          onChange={(e) => setVehicleSize(e.target.value)}
-        >
-          <option value="SMALL">SMALL</option>
-          <option value="LARGE">LARGE</option>
-          <option value="OVERSIZE">OVERSIZE</option>
-        </select>
+          <label>Vehicle Size</label>
+          <select
+            value={vehicleSize}
+            onChange={(e) => setVehicleSize(e.target.value)}
+          >
+            <option value="SMALL">SMALL</option>
+            <option value="LARGE">LARGE</option>
+            <option value="OVERSIZE">OVERSIZE</option>
+          </select>
 
-        <button onClick={handlePark}>Park</button>
+          <button onClick={handlePark}>Park</button>
+        </div>
       </section>
-
-      <hr />
 
       {/* EXIT */}
-      <section>
+      <section className="panel">
         <h2>Exit Vehicle</h2>
-        <input
-          placeholder="License Plate"
-          value={exitPlate}
-          onChange={(e) => setExitPlate(e.target.value)}
-        />
-        <button onClick={handleExit}>Exit</button>
+        <div className="control-group">
+          <label>License Plate</label>
+          <input
+            value={exitPlate}
+            onChange={(e) => setExitPlate(e.target.value)}
+          />
+          <button onClick={handleExit}>Exit</button>
+        </div>
       </section>
 
-      <hr />
-
-      {/* MESSAGE */}
-      {message && (
-        <section>
-          <h3>Response</h3>
-          <pre>{message}</pre>
-        </section>
-      )}
-
-      <hr />
+      <hr/>
 
       {/* STATUS */}
       <section>
-        <h2>Parking Lot Status</h2>
+        <h2>Parking Status</h2>
         {slots.length === 0 ? (
-          <p>No parking lot initialized</p>
+          <div className="empty-state">→ No parking lot initialized</div>
         ) : (
-          <table border="1" cellPadding="8">
-            <thead>
-              <tr>
-                <th>Slot ID</th>
-                <th>Size</th>
-                <th>Vehicle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {slots.map((slot) => (
-                <tr key={slot.id + 1}>
-                  <td>{slot.id + 1}</td>
-                  <td>{slot.size}</td>
-                  <td>
-                    {slot.vehicle
-                      ? `${slot.vehicle.licensePlate} (${slot.vehicle.size})`
-                      : "Empty"}
-                  </td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Slot</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                  <th>License Plate</th>
+                  <th>Vehicle Type</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {slots.map((slot) => (
+                  <tr key={slot.id}>
+                    <td>[{String(slot.id + 1).padStart(2, "0")}]</td>
+                    <td>{slot.size}</td>
+                    <td
+                      className={
+                        slot.vehicle
+                          ? "occupied-status"
+                          : "available-status"
+                      }
+                    >
+                      {slot.vehicle ? "[X] OCCUPIED" : "[ ] AVAILABLE"}
+                    </td>
+                    <td>
+                      {slot.vehicle ? slot.vehicle.licensePlate : "---"}
+                    </td>
+                    <td>{slot.vehicle ? slot.vehicle.size : "---"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>

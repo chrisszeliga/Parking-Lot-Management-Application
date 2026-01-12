@@ -83,3 +83,6 @@ Tests cover:
 - Smaller vehicles may occupy larger slots when needed
 - Service layer is decoupled from Spring for easier testing
 - CORS enabled for local frontend-backend communication
+
+## Full Report
+[Read the full report (PDF)](https://github.com/user-attachments/files/24557347/Christopher-Szeliga-Presentation-PDF.pdf)

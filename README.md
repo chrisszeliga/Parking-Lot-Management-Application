@@ -2,6 +2,8 @@
 
 A full-stack Parking Lot Management application that allows users to initialize a parking lot, park vehicles, remove vehicles, and view parking slot status.
 
+https://parking-lot-management-application.fly.dev/
+
 Backend: Java, Spring Boot  
 Frontend: React (Vite)  
 Testing: JUnit
